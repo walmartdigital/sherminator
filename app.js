@@ -8,10 +8,11 @@ const fs = require('fs');
 
 const expr = require('./utils/expressions');
 const events = require('./events');
+const packageJSON = require('./package.json');
 
-const CORE_PLUGINS_PATH = path.join(__dirname, 'plugins');
+const CORE_CONFIG_PATH = path.join(__dirname, 'config.js');
 let shutdownWasCalled = false;
-const log = debug('pipe-flow:app');
+const log = debug(`${packageJSON.name}:app`);
 
 const shutdown = () => {
     expr.whenFalse(shutdownWasCalled, () => {
@@ -46,9 +47,7 @@ class App extends EventEmitter {
 
     start(configPath) {
         // creating built in core plugins config
-        const corePluginsToLoad = fs.readdirSync(CORE_PLUGINS_PATH)
-            .map(pluginName => path.join(CORE_PLUGINS_PATH, pluginName));
-        const coreConfig = architect.resolveConfig(corePluginsToLoad, CORE_PLUGINS_PATH);
+        const coreConfig = architect.loadConfig(CORE_CONFIG_PATH);
 
         // creating client config
         const clientConfig = architect.loadConfig(configPath);
