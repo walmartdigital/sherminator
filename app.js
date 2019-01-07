@@ -4,25 +4,31 @@ const debug = require('debug');
 const chalk = require('chalk');
 const lodash = require('lodash');
 const path = require('path');
-const fs = require('fs');
 
 const expr = require('./utils/expressions');
-const events = require('./events');
 const packageJSON = require('./package.json');
 
 const CORE_CONFIG_PATH = path.join(__dirname, 'config.js');
+const EVENTS = {
+    APPLICATION_READY: 'APPLICATION:READY',
+    APPLICATION_UNCAUGHT_EXCEPTION: 'APPLICATION:UNCAUGHT_EXCEPTION',
+    APPLICATION_UNHANDLED_REJECTION: 'APPLICATION:UNHANDLED_REJECTION',
+    APPLICATION_SHUTDOWN: 'APPLICATION:SHUTDOWN',
+    SERVICE_REGISTERED: 'SERVICE:REGISTERED',
+    PLUGIN_REGISTERED: 'PLUGIN:REGISTERED'
+};
 let shutdownWasCalled = false;
 const log = debug(`${packageJSON.name}:app`);
 
 const shutdown = () => {
     expr.whenFalse(shutdownWasCalled, () => {
         shutdownWasCalled = true;
-        let counter = this.listeners(events.APPLICATION_SHUTDOWN).length;
+        let counter = this.listeners(App.events.APPLICATION_SHUTDOWN).length;
         expr.whenTrue(counter === 0, process.exit.bind(process, 0));
 
         // count the handlers , and when handler call next, augment +1 counter
         // when counter is equal to the handler , close in a 'sign kill'
-        this.emit(events.APPLICATION_SHUTDOWN, () => {
+        this.emit(App.events.APPLICATION_SHUTDOWN, () => {
             counter--;
             if (counter <= 0) {
                 // kill process in a sigterm
@@ -34,12 +40,16 @@ const shutdown = () => {
 
 class App extends EventEmitter {
 
+    static get events() {
+        return EVENTS;
+    }
+
     constructor() {
         super();
         this.services = null;
 
-        process.on('uncaughtException', this.emit.bind(this, events.APPLICATION_UNCAUGHT_EXCEPTION));
-        process.on('unhandledRejection', this.emit.bind(this, events.APPLICATION_UNHANDLED_REJECTION));
+        process.on('uncaughtException', this.emit.bind(this, App.events.APPLICATION_UNCAUGHT_EXCEPTION));
+        process.on('unhandledRejection', this.emit.bind(this, App.events.APPLICATION_UNHANDLED_REJECTION));
         const bindedShutdown = shutdown.bind(this);
         process.on('SIGINT', bindedShutdown);
         process.on('SIGTERM', bindedShutdown);
@@ -61,12 +71,12 @@ class App extends EventEmitter {
                 throw err;
             };
 
-            app.on('service', this.emit.bind(this, events.SERVICE_REGISTERED));
-            app.on('plugin', this.emit.bind(this, events.PLUGIN_REGISTERED));
+            app.on('service', this.emit.bind(this, App.events.SERVICE_REGISTERED));
+            app.on('plugin', this.emit.bind(this, App.events.PLUGIN_REGISTERED));
             // set services to provide using app.service
             this.services = app.services;
             log(chalk.green('Application is ready :)'));
-            this.emit(events.APPLICATION_READY);
+            this.emit(App.events.APPLICATION_READY);
         });
     }
 
