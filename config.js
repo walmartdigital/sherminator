@@ -1,4 +1,5 @@
 module.exports = [
     "./plugins/app-reference",
-    "architect-config"
+    "./node_modules/architect-config",
+    "./plugins/bunyan-logger"
 ];
