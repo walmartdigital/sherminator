@@ -20,15 +20,15 @@ const EVENTS = {
 let shutdownWasCalled = false;
 const log = debug(`${packageJSON.name}:app`);
 
-const shutdown = () => {
+const shutdown = function () {
     expr.whenFalse(shutdownWasCalled, () => {
         shutdownWasCalled = true;
-        let counter = this.listeners(App.events.APPLICATION_SHUTDOWN).length;
+        let counter = this.listeners(EVENTS.APPLICATION_SHUTDOWN).length;
         expr.whenTrue(counter === 0, process.exit.bind(process, 0));
 
         // count the handlers , and when handler call next, augment +1 counter
         // when counter is equal to the handler , close in a 'sign kill'
-        this.emit(App.events.APPLICATION_SHUTDOWN, () => {
+        this.emit(EVENTS.APPLICATION_SHUTDOWN, () => {
             counter--;
             if (counter <= 0) {
                 // kill process in a sigterm
@@ -40,7 +40,7 @@ const shutdown = () => {
 
 class App extends EventEmitter {
 
-    static get events() {
+    get events() {
         return EVENTS;
     }
 
@@ -48,8 +48,8 @@ class App extends EventEmitter {
         super();
         this.services = null;
 
-        process.on('uncaughtException', this.emit.bind(this, App.events.APPLICATION_UNCAUGHT_EXCEPTION));
-        process.on('unhandledRejection', this.emit.bind(this, App.events.APPLICATION_UNHANDLED_REJECTION));
+        process.on('uncaughtException', this.emit.bind(this, EVENTS.APPLICATION_UNCAUGHT_EXCEPTION));
+        process.on('unhandledRejection', this.emit.bind(this, EVENTS.APPLICATION_UNHANDLED_REJECTION));
         const bindedShutdown = shutdown.bind(this);
         process.on('SIGINT', bindedShutdown);
         process.on('SIGTERM', bindedShutdown);
@@ -71,12 +71,12 @@ class App extends EventEmitter {
                 throw err;
             };
 
-            app.on('service', this.emit.bind(this, App.events.SERVICE_REGISTERED));
-            app.on('plugin', this.emit.bind(this, App.events.PLUGIN_REGISTERED));
+            app.on('service', this.emit.bind(this, EVENTS.SERVICE_REGISTERED));
+            app.on('plugin', this.emit.bind(this, EVENTS.PLUGIN_REGISTERED));
             // set services to provide using app.service
             this.services = app.services;
             log(chalk.green('Application is ready :)'));
-            this.emit(App.events.APPLICATION_READY);
+            this.emit(EVENTS.APPLICATION_READY);
         });
     }
 

@@ -1,0 +1,4 @@
+{
+    "kafkaBrokers": "localhost:9092",
+    "kafkaTopic": "my-replicated-topic"
+}
