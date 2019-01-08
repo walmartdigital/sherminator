@@ -8,7 +8,7 @@ const path = require('path');
 const expr = require('./utils/expressions');
 const packageJSON = require('./package.json');
 
-const CORE_CONFIG_PATH = path.join(__dirname, 'config.js');
+const CORE_CONFIG_PATH = path.join(__dirname, 'conf.js');
 const EVENTS = {
     APPLICATION_READY: 'APPLICATION:READY',
     APPLICATION_UNCAUGHT_EXCEPTION: 'APPLICATION:UNCAUGHT_EXCEPTION',
