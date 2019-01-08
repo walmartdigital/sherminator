@@ -1,6 +1,6 @@
 {
   "name": "sherminator",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A plugable system to create a node js app with minimal effort.",
   "main": "index.js",
   "scripts": {
