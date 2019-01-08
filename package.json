@@ -18,7 +18,7 @@
   "homepage": "https://github.com/walmartdigital/sherminator#readme",
   "dependencies": {
     "architect": "^0.1.13",
-    "architect-config": "^0.0.1",
+    "architect-config": "0.0.1",
     "bunyan": "^1.8.12",
     "chalk": "^2.4.2",
     "debug": "^4.1.1",
