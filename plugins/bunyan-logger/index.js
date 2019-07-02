@@ -1,7 +1,7 @@
-const logger = require('../../logger');
+const logger = require("../../logger");
 
-module.exports = function (_, imports, register) {
-    register(null, {
-        logger
-    });
-}
+module.exports = function(_, imports, register) {
+  register(null, {
+    logger
+  });
+};
